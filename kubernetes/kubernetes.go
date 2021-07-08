@@ -29,54 +29,62 @@ import (
 
 type Contexts struct {
 	Name string
+	//Other string
 }
 // ListContexts will list available contexts from /.kube/config
 // for Rundeck we can call this to get a list and return it to a DDL for selection
 func ListContexts() []Contexts{
 	var contexts []Contexts
-	var kubeconfig *string
+	var kubeconfigList *string
 	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		kubeconfigList = flag.String("kubeconfigList", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		kubeconfigList = flag.String("kubeconfkubeconfigListiglist", "", "absolute path to the kubeconfig file")
 	}
 	flag.Parse()
 
 	//Dereferences the pointer and prints kubconfig as string
-	strkubeconfig := DerefString(kubeconfig)
-	fmt.Println("kubeconfig:",strkubeconfig)
+	strkubeconfig := DerefString(kubeconfigList)
 
 	kubeConfig, err := clientcmd.LoadFromFile(strkubeconfig)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//
-	test := kubeConfig.Contexts
-	for a := range test{
-		//test := DerefString(b)
-		//fmt.Println("test:",a,b)
+	// Load Context names into Contexts struct
+	for a  := range kubeConfig.Contexts{
 		contexts = append(contexts, Contexts{Name: a})
 	}
+	fmt.Println("kubeConfig.Contexts",kubeConfig.Contexts)
+	fmt.Println("kubeConfig.Contexts",kubeConfig.Clusters)
+	fmt.Println("kubeConfig.Contexts",kubeConfig.Preferences)
 	return contexts
 }
 
 // CallContext will connect to the default context for now
 // Will update this to be able to pass in a context
 func CallContext() { //(context string){
-	var kubeconfig *string
+	var kubeconfigCall *string
 	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		kubeconfigCall = flag.String("kubeconfigCall", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		kubeconfigCall = flag.String("kubeckubeconfigCallonfig1", "", "absolute path to the kubeconfig file")
 	}
 	flag.Parse()
 
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	//Dereferences the pointer and prints kubconfig as string
+	strkubeconfig := DerefString(kubeconfigCall)
+	fmt.Println("kubeconfigCall:",strkubeconfig)
+
+	// uses the current context in ~/.kube/config
+	// Working on how to pass in a specific context and call that.
+	// this requires the URL though. Will probably have to recall ListContexts
+	// and pull the masterURL and then pass that in.
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfigCall)
 	if err != nil {
 		panic(err.Error())
 	}
+
+	fmt.Println("config:",config)
 
 	// create the clientset
 	clientset, err := kubernetes.NewForConfig(config)

@@ -11,8 +11,16 @@ func main()  {
 	// call program with arg 'contexts'
  	// will list all contexts in .kube/config file
  	if os.Args[1] == "contexts" {
-		test := kubernetes.ListContexts()
-		fmt.Println("test:",test)
+		ListContexts := kubernetes.ListContexts()
+		fmt.Println("test:",ListContexts)
+		//for a := range ListContexts {
+		//	CallContext := kubernetes.CallContext(a)
+		//	fmt.Println("a::",a, "  CallContext::",CallContext)
+		//}
+
+		kubernetes.CallContext()
+
+
 	}
 	// does nothing yet
 	if os.Args[1] == "notcontexts" {
